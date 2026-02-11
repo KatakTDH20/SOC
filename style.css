@@ -1,0 +1,192 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* HEADER */
+.header {
+    background: #72e48b; 
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-container img {
+    width: 50px;
+}
+
+.header nav a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* HERO */
+.hero {
+    background: #163a59;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.hero h2 {
+    color: #7ee694;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    color: white;
+}
+
+/* SOBRE NOSOTROS */
+.about {
+    background: url("img/corriendo.jpg") center/cover no-repeat;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.about-overlay {
+    background: rgba(0, 0, 0, 0.55); 
+    color: white;
+    padding: 50px;
+    border-radius: 12px;
+    max-width: 800px;
+    text-align: center;
+}
+
+.about-overlay h2 {
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+
+/* IMAGEN */
+.image-section {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.image-section img {
+    max-width: 90%;
+    border-radius: 12px;
+}
+
+/* SERVICIOS */
+.services-section {
+    background: #163a59; 
+    padding: 70px 20px;
+}
+
+.services-title {
+    color: white;
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2em;
+}
+
+.services-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.service-card {
+    height: 100%;
+    background: #1f4d75;
+    color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.service-text {
+    padding: 15px;
+    min-height: 120px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.service-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.service-card h3 {
+    margin: 15px 0 10px;
+}
+
+.service-card p {
+    padding: 0 15px 20px;
+    font-size: 0.95em;
+}
+
+
+/* CONTACTO */
+.contact {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.contact form {
+    max-width: 400px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact input,
+.contact textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.contact button {
+    background: #163a59;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* FOOTER */
+.footer {
+    background: #163a59;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+    }
+
+    .header nav {
+        margin-top: 10px;
+    }
+}
+
