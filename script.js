@@ -1,14 +1,40 @@
-document.getElementById("contactForm").addEventListener("submit", function (e) {
+const form = document.getElementById("contactForm");
+
+form.addEventListener("submit", async function(e) {
+
     e.preventDefault();
 
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
+    const formData = new FormData(form);
 
-    alert(
-        "Gracias por tu mensaje, " + name +
-        ".\nTu solicitud ha sido enviada correctamente (simulación)."
-    );
+    try {
 
-    this.reset();
+        const response = await fetch(form.action, {
+            method: form.method,
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+
+            const name = document.getElementById("name").value;
+
+            alert("Gracias por tu mensaje, " + name + ". Te responderemos pronto.");
+
+            form.reset();
+
+        } else {
+
+            alert("Hubo un problema al enviar el mensaje.");
+
+        }
+
+    } catch (error) {
+
+        alert("Error al enviar el mensaje.");
+
+    }
+
 });
 
