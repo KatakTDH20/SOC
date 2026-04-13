@@ -5,6 +5,7 @@
 <title>Perros - SOC</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 body {
     margin: 0;
@@ -257,196 +258,12 @@ button {
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
-const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
-const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-const rol = localStorage.getItem("rol");
-const usuarioId = localStorage.getItem("usuario_id");
+<!-- 2. Configuración centralizada -->
+<script src="supabase-config.js"></script>
 
-// Actualizar menú según rol
-function actualizarMenuNav() {
-    const navLogin = document.getElementById("nav-login");
-    const navPerfil = document.getElementById("nav-perfil");
-    const navAdmin = document.getElementById("nav-admin");
-    
-    if (!navLogin) return;
-    
-    if (rol === "usuario") {
-        navLogin.style.display = "none";
-        navPerfil.style.display = "inline";
-        navAdmin.style.display = "none";
-    } else if (rol === "admin") {
-        navLogin.style.display = "none";
-        navPerfil.style.display = "inline";
-        navAdmin.style.display = "inline";
-    } else {
-        navLogin.style.display = "inline";
-        navPerfil.style.display = "none";
-        navAdmin.style.display = "none";
-    }
-}
-
-// Cargar perros
-async function cargarPerros() {
-    const tabla = document.getElementById("tabla-perros");
-    tabla.innerHTML = '<tr><td colspan="10" style="text-align:center;">Cargando...</td></tr>';
-    
-    const filtroEstado = document.getElementById("filtro-estado")?.value || "";
-    const filtroEntrenamiento = document.getElementById("filtro-entrenamiento")?.value || "";
-    
-    let query = supabaseClient
-        .from("Perros")
-        .select("*")
-        .order("id", { ascending: true });
-    
-    if (filtroEstado) {
-        query = query.eq("estado_adopcion", filtroEstado);
-    }
-    
-    if (filtroEntrenamiento) {
-        query = query.eq("estado_entrenamiento", filtroEntrenamiento);
-    }
-    
-    const { data, error } = await query;
-    
-    if (error) {
-        console.error("Error:", error);
-        tabla.innerHTML = '<tr><td colspan="10" style="text-align:center;color:red;">Error al cargar perros</td></tr>';
-        return;
-    }
-    
-    if (!data || data.length === 0) {
-        tabla.innerHTML = '<tr><td colspan="10" style="text-align:center;">No hay perros registrados</td></tr>';
-        return;
-    }
-    
-    tabla.innerHTML = "";
-    
-    data.forEach(perro => {
-        const fila = document.createElement("tr");
-        
-        // Formatear fecha
-        const fechaRescate = perro.fecha_rescate ? new Date(perro.fecha_rescate).toLocaleDateString('es-MX') : 'N/A';
-        
-        // Clase CSS para estado
-        const estadoClass = perro.estado_adopcion === 'Disponible' ? 'estado-disponible' : 'estado-no-disponible';
-        
-        fila.innerHTML = `
-            <td>${perro.id}</td>
-            <td><strong>${perro.nombre}</strong></td>
-            <td>${perro.sexo}</td>
-            <td>${perro.edad} año(s)</td>
-            <td>${perro.raza}</td>
-            <td>${fechaRescate}</td>
-            <td class="${estadoClass}">${perro.estado_adopcion}</td>
-            <td>${perro.estado_entrenamiento}</td>
-            <td>${perro.estado_salud}</td>
-            <td class="acciones"></td>
-        `;
-        
-        tabla.appendChild(fila);
-    });
-    
-    agregarBotones();
-}
-
-// Agregar botones según rol
-function agregarBotones() {
-    document.querySelectorAll(".acciones").forEach(cell => {
-        const fila = cell.parentElement;
-        const idPerro = fila.children[0].textContent;
-        const estado = fila.children[6].textContent.trim();
-        
-        cell.innerHTML = "";
-        
-        if (rol === "usuario") {
-            const btn = document.createElement("button");
-            btn.textContent = "🐾 Adoptar";
-            btn.className = "adoptar";
-            
-            if (estado !== "Disponible") {
-                btn.disabled = true;
-                btn.textContent = "No disponible";
-            }
-            
-            btn.onclick = () => solicitarAdopcion(idPerro);
-            cell.appendChild(btn);
-        } else if (rol === "admin") {
-            const btnEliminar = document.createElement("button");
-            btnEliminar.textContent = "🗑️ Eliminar";
-            btnEliminar.className = "eliminar";
-            btnEliminar.onclick = () => eliminarPerro(idPerro);
-            cell.appendChild(btnEliminar);
-        } else {
-            // Visitante
-            const mensaje = document.createElement("span");
-            mensaje.textContent = "Inicia sesión";
-            mensaje.style.fontSize = "12px";
-            mensaje.style.color = "#666";
-            cell.appendChild(mensaje);
-        }
-    });
-}
-
-// Solicitar adopción
-async function solicitarAdopcion(idPerro) {
-    if (!usuarioId) {
-        alert("Debes iniciar sesión primero");
-        window.location.href = "sesion.html";
-        return;
-    }
-    
-    const confirmacion = confirm("¿Confirmas la solicitud de adopción?");
-    if (!confirmacion) return;
-    
-    const { error } = await supabaseClient
-        .from("Adopciones")
-        .insert([{
-            id_perro: idPerro,
-            id_usuario: usuarioId,
-            estado: "En revision"
-        }]);
-    
-    if (error) {
-        console.error("Error:", error);
-        alert("Error al solicitar adopción");
-    } else {
-        alert("✅ Solicitud enviada correctamente");
-        cargarPerros();
-    }
-}
-
-// Eliminar perro (admin)
-async function eliminarPerro(id) {
-    if (!confirm("¿Estás seguro de eliminar este perro?")) return;
-    
-    const { error } = await supabaseClient
-        .from("Perros")
-        .delete()
-        .eq("id", id);
-    
-    if (error) {
-        console.error("Error:", error);
-        alert("Error al eliminar perro");
-    } else {
-        alert("✅ Perro eliminado");
-        cargarPerros();
-    }
-}
-
-// Configurar filtros
-document.addEventListener('DOMContentLoaded', () => {
-    actualizarMenuNav();
-    cargarPerros();
-    
-    // Eventos de filtros
-    document.getElementById("filtro-estado")?.addEventListener("change", cargarPerros);
-    document.getElementById("filtro-entrenamiento")?.addEventListener("change", cargarPerros);
-});
-</script>
+<!-- 3. Tu script específico -->
+<script src="script.js"></script>
 
 </body>
 </html>

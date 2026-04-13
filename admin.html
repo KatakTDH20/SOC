@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Administrador - SOC</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 body {
     margin: 0;
@@ -153,46 +153,11 @@ button {
     </div>
 </footer>
 
-<!-- SCRIPTS -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- 2. Configuración centralizada -->
+<script src="supabase-config.js"></script>
 
-<script>
-const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
-const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
-
-const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-// 🔒 PROTECCIÓN
-const rol = localStorage.getItem("rol");
-
-if (rol !== "admin") {
-    window.location.href = "sesion.html";
-}
-
-// 🔥 CARGAR DATOS DEL ADMIN
-async function cargarAdmin() {
-
-    const id = localStorage.getItem("usuario_id");
-
-    const { data } = await supabaseClient
-        .from("Administradores")
-        .select("*")
-        .eq("ID", id)
-        .single();
-
-    document.getElementById("nombre").textContent = data.Nombre;
-    document.getElementById("correo").textContent = data.Correo;
-    document.getElementById("telefono").textContent = data.Telefono;
-}
-
-cargarAdmin();
-
-// 🔓 CERRAR SESIÓN
-function cerrarSesion() {
-    localStorage.clear();
-    window.location.href = "sesion.html";
-}
-</script>
+<!-- 3. Tu script específico -->
+<script src="script.js"></script>
 
 </body>
 </html>

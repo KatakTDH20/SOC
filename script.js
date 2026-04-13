@@ -1,14 +1,12 @@
-// Configuración de Supabase
-const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
-const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+// Ya no declaramos supabase aquí, usamos la variable global del config
 
 // Menú toggle
 const toggle = document.getElementById("menu-toggle");
 const nav = document.getElementById("nav");
 
 if (toggle && nav) {
-    toggle.addEventListener("click", () => {
+    toggle.addEventListener("click", (e) => {
+        e.preventDefault();
         nav.classList.toggle("active");
     });
 }
@@ -24,14 +22,12 @@ if (form) {
             const response = await fetch(form.action, {
                 method: form.method,
                 body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
+                headers: { 'Accept': 'application/json' }
             });
 
             if (response.ok) {
                 const name = document.getElementById("name").value;
-                alert("Gracias por tu mensaje, " + name + ". Te responderemos pronto.");
+                alert("Gracias por tu mensaje, " + name);
                 form.reset();
             } else {
                 alert("Hubo un problema al enviar el mensaje.");
@@ -41,42 +37,6 @@ if (form) {
         }
     });
 }
-
-// Asegurar que el menú toggle funcione
-document.addEventListener('DOMContentLoaded', function() {
-    const toggle = document.getElementById("menu-toggle");
-    const nav = document.getElementById("nav");
-    
-    if (toggle && nav) {
-        // Remover eventos previos si existen
-        toggle.removeEventListener('click', toggleMenu);
-        
-        // Definir la función
-        function toggleMenu(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            nav.classList.toggle("active");
-            console.log("Toggle clickeado, nav active:", nav.classList.contains("active"));
-        }
-        
-        // Agregar evento
-        toggle.addEventListener('click', toggleMenu);
-        
-        // Cerrar menú al hacer clic en un enlace
-        nav.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                nav.classList.remove('active');
-            });
-        });
-        
-        // Cerrar menú al hacer clic fuera
-        document.addEventListener('click', function(e) {
-            if (!nav.contains(e.target) && !toggle.contains(e.target)) {
-                nav.classList.remove('active');
-            }
-        });
-    }
-});
 
 // Actualizar menú según rol
 function actualizarMenu() {
@@ -102,5 +62,59 @@ function actualizarMenu() {
     }
 }
 
-// Ejecutar al cargar
 actualizarMenu();
+
+// Función de diagnóstico
+async function diagnosticarConexion() {
+    console.log("🔍 Diagnosticando conexión...");
+    
+    try {
+        // Verificar si supabase está definido
+        if (typeof supabase === 'undefined') {
+            console.error("❌ Variable 'supabase' no definida");
+            return;
+        }
+        
+        // Probar conexión a Perros
+        const { data: perros, error: errorPerros } = await supabase
+            .from("Perros")
+            .select("id")
+            .limit(1);
+            
+        if (errorPerros) {
+            console.error("❌ Error en tabla Perros:", errorPerros);
+        } else {
+            console.log("✅ Tabla Perros accesible");
+        }
+        
+        // Probar conexión a Administradores
+        const { data: admins, error: errorAdmins } = await supabase
+            .from("Administradores")
+            .select("id")
+            .limit(1);
+            
+        if (errorAdmins) {
+            console.error("❌ Error en tabla Administradores:", errorAdmins);
+        } else {
+            console.log("✅ Tabla Administradores accesible");
+        }
+        
+        // Probar conexión a Usuarios
+        const { data: users, error: errorUsers } = await supabase
+            .from("Usuarios")
+            .select("id")
+            .limit(1);
+            
+        if (errorUsers) {
+            console.error("❌ Error en tabla Usuarios:", errorUsers);
+        } else {
+            console.log("✅ Tabla Usuarios accesible");
+        }
+        
+    } catch (error) {
+        console.error("❌ Error general:", error);
+    }
+}
+
+// Ejecutar diagnóstico al cargar
+setTimeout(diagnosticarConexion, 1000);

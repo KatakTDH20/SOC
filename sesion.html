@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Sesión - SOC</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             margin: 0;
@@ -198,51 +198,37 @@
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
-const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
-
-const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-function mostrarRegistro() {
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("register-section").classList.remove("hidden");
-}
-
-function mostrarLogin() {
-    document.getElementById("register-section").classList.add("hidden");
-    document.getElementById("login-section").classList.remove("hidden");
-}
-
+<!-- 2. Configuración centralizada -->
+<script src="supabase-config.js">
+    // En sesion.html, después de cargar supabase-config.js
 async function login(event) {
-    event.preventDefault();  // Prevenir envío del formulario
+    event.preventDefault();
     
-    console.log("Intentando login...");
-
     const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
 
-    // Validación básica
     if (!email || !password) {
         alert("Por favor completa todos los campos");
         return;
     }
 
+    console.log("🔐 Intentando login con:", email);
+
     try {
         // Verificar ADMIN
-        const { data: admin, error: errorAdmin } = await supabaseClient
+        const { data: admin, error: errorAdmin } = await supabase
             .from("Administradores")
-            .select("*")
+            .select("id, nombre, correo, contrasena")
             .eq("correo", email)
-            .eq("contrasena", password)
-            .single();
+            .eq("contrasena", password);
 
-        if (admin) {
-            console.log("Admin encontrado:", admin);
+        console.log("📊 Admin query result:", { admin, errorAdmin });
+
+        if (admin && admin.length > 0) {
+            console.log("✅ Admin encontrado:", admin[0]);
             localStorage.setItem("rol", "admin");
-            localStorage.setItem("usuario_id", admin.ID);
-            localStorage.setItem("usuario_nombre", admin.Nombre || "Administrador");
+            localStorage.setItem("usuario_id", admin[0].id);
+            localStorage.setItem("usuario_nombre", admin[0].nombre || "Administrador");
             
             alert("¡Bienvenido Administrador!");
             window.location.href = "admin.html";
@@ -250,87 +236,36 @@ async function login(event) {
         }
 
         // Verificar USUARIO
-        const { data: user, error: errorUser } = await supabaseClient
+        const { data: user, error: errorUser } = await supabase
             .from("Usuarios")
-            .select("*")
+            .select("id, nombre, correo, contrasena")
             .eq("correo", email)
-            .eq("contrasena", password)
-            .single();
+            .eq("contrasena", password);
 
-        if (user) {
-            console.log("Usuario encontrado:", user);
+        console.log("📊 User query result:", { user, errorUser });
+
+        if (user && user.length > 0) {
+            console.log("✅ Usuario encontrado:", user[0]);
             localStorage.setItem("rol", "usuario");
-            localStorage.setItem("usuario_id", user.ID);
-            localStorage.setItem("usuario_nombre", user.Nombre || "Usuario");
+            localStorage.setItem("usuario_id", user[0].id);
+            localStorage.setItem("usuario_nombre", user[0].nombre || "Usuario");
             
             alert("¡Bienvenido!");
             window.location.href = "perfil.html";
             return;
         }
 
-        // Si no se encontró en ninguna tabla
-        alert("Correo o contraseña incorrectos");
+        alert("❌ Correo o contraseña incorrectos");
 
     } catch (err) {
-        console.error("Error detallado:", err);
-        alert("Error al conectar con la base de datos. Revisa la consola.");
-    }
-}
-
-async function registrar(event) {
-    event.preventDefault();  // Prevenir envío del formulario
-
-    const nombre = document.getElementById("reg-nombre").value.trim();
-    const email = document.getElementById("reg-email").value.trim();
-    const password = document.getElementById("reg-password").value;
-    const telefono = document.getElementById("reg-telefono").value.trim();
-    const direccion = document.getElementById("reg-direccion").value.trim();
-
-    // Validación
-    if (!nombre || !email || !password) {
-        alert("Por favor completa los campos obligatorios");
-        return;
-    }
-
-    try {
-        // Verificar si el correo ya existe
-        const { data: existe } = await supabaseClient
-            .from("Usuarios")
-            .select("Correo")
-            .eq("Correo", email)
-            .single();
-
-        if (existe) {
-            alert("Este correo ya está registrado");
-            return;
-        }
-
-        const { error } = await supabaseClient
-            .from("Usuarios")
-            .insert([{
-                Nombre: nombre,
-                Correo: email,
-                Contraseña: password,
-                Telefono: telefono,
-                Direccion: direccion
-            }]);
-
-        if (error) {
-            console.error("Error al registrar:", error);
-            alert("Error al registrar: " + error.message);
-        } else {
-            alert("Registro exitoso. Ahora puedes iniciar sesión.");
-            mostrarLogin();
-            
-            // Limpiar formulario
-            document.getElementById("register-form").reset();
-        }
-    } catch (err) {
-        console.error("Error:", err);
-        alert("Error al conectar con la base de datos");
+        console.error("❌ Error en login:", err);
+        alert("Error al conectar con la base de datos: " + err.message);
     }
 }
 </script>
+
+<!-- 3. Tu script específico -->
+<script src="script.js"></script>
 
 </body>
 </html>
