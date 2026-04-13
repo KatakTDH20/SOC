@@ -113,6 +113,30 @@ function agregarFila() {
     `;
 }
 
+// =========================
+// TOGGLE LOGIN / REGISTRO
+// =========================
+
+function mostrarRegistro() {
+    const login = document.getElementById("login-section");
+    const register = document.getElementById("register-section");
+
+    if (login && register) {
+        login.classList.add("hidden");
+        register.classList.remove("hidden");
+    }
+}
+
+function mostrarLogin() {
+    const login = document.getElementById("login-section");
+    const register = document.getElementById("register-section");
+
+    if (login && register) {
+        login.classList.remove("hidden");
+        register.classList.add("hidden");
+    }
+}
+
 // Función de diagnóstico
 async function diagnosticarConexion() {
     console.log("🔍 Diagnosticando conexión...");
