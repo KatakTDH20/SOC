@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Administrador - SOC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+    background: #72e48b;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+}
+
+.logo-container img {
+    width: 50px;
+}
+
+.nav a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* CONTENIDO */
+.container {
+    flex: 1;
+    padding: 40px;
+    text-align: center;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    max-width: 400px;
+    margin: auto;
+}
+
+.card p {
+    margin: 10px 0;
+}
+
+/* BOTÓN */
+button {
+    padding: 10px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.logout {
+    background: red;
+    color: white;
+}
+
+/* FOOTER */
+.footer {
+    background: #163a59;
+    color: white;
+    padding: 20px;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.social-icons img {
+    width: 30px;
+    margin-left: 10px;
+    filter: brightness(0) invert(1);
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="logo-container">
+        <a href="index.html">
+            <img src="img/logo.png">
+            <h1>Segunda Oportunidad Canina</h1>
+        </a>
+    </div>
+
+    <nav class="nav">
+        <a href="index.html">Página principal</a>
+        <a href="perros.html">Perros</a>
+        <a href="lista.html">Usuarios</a>
+    </nav>
+</header>
+
+<!-- CONTENIDO -->
+<div class="container">
+    <div class="card">
+        <h2>Perfil del Administrador</h2>
+
+        <p><strong>Nombre:</strong> <span id="nombre"></span></p>
+        <p><strong>Correo:</strong> <span id="correo"></span></p>
+        <p><strong>Teléfono:</strong> <span id="telefono"></span></p>
+
+        <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <div>
+            <p>📍 Sahuayo, Michoacán</p>
+            <p>📞 353 000 0000</p>
+            <p>✉ contacto@segundaoportunidadcanina.mx</p>
+        </div>
+
+        <div class="social-icons">
+            <a href="#"><img src="img/instagram.png"></a>
+            <a href="#"><img src="img/tiktok.png"></a>
+        </div>
+    </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
+const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// 🔒 PROTECCIÓN
+const rol = localStorage.getItem("rol");
+
+if (rol !== "admin") {
+    window.location.href = "sesion.html";
+}
+
+// 🔥 CARGAR DATOS DEL ADMIN
+async function cargarAdmin() {
+
+    const id = localStorage.getItem("usuario_id");
+
+    const { data } = await supabase
+        .from("Administradores")
+        .select("*")
+        .eq("ID", id)
+        .single();
+
+    document.getElementById("nombre").textContent = data.Nombre;
+    document.getElementById("correo").textContent = data.Correo;
+    document.getElementById("telefono").textContent = data.Telefono;
+}
+
+cargarAdmin();
+
+// 🔓 CERRAR SESIÓN
+function cerrarSesion() {
+    localStorage.clear();
+    window.location.href = "sesion.html";
+}
+</script>
+
+</body>
+</html>

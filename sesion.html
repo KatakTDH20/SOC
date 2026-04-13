@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sesión - SOC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0e330e;
+        }
+
+        /* HEADER */
+        .header {
+            background: #72e48b;
+            color: white;
+            padding: 15px 30px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .logo-container img {
+            width: 50px;
+        }
+
+        .logo-container a {
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* CONTENEDOR */
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 160px);
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 320px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #72e48b;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #5ccf76;
+        }
+
+        .toggle {
+            margin-top: 15px;
+            cursor: pointer;
+            color: #163a59;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: #163a59;
+            color: white;
+            padding: 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .social-icons img {
+            width: 30px;
+            margin-left: 10px;
+            cursor: pointer;
+            filter: brightness(0) invert(1);
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="logo-container">
+        <a href="index.html">
+            <img src="img/logo.png" alt="Logo SOC">
+            <h1>Segunda Oportunidad Canina</h1>
+        </a>
+    </div>
+</header>
+
+<!-- CONTENIDO -->
+<div class="main">
+
+    <div class="container">
+
+        <!-- LOGIN -->
+        <div id="login-section">
+            <h2>Iniciar Sesión</h2>
+
+            <form id="login-form" onsubmit="login(event)">
+                <input type="email" id="login-email" placeholder="Correo" required>
+                <input type="password" id="login-password" placeholder="Contraseña" required>
+                <button type="submit">Entrar</button>
+            </form>
+
+            <p class="toggle" onclick="mostrarRegistro()">
+                ¿No tienes cuenta? Regístrate
+            </p>
+        </div>
+
+        <!-- REGISTRO -->
+        <div id="register-section" class="hidden">
+            <h2>Registro</h2>
+
+            <form id="register-form" onsubmit="registrar(event)">
+                <input type="text" id="reg-nombre" placeholder="Nombre completo" required>
+                <input type="email" id="reg-email" placeholder="Correo" required>
+                <input type="password" id="reg-password" placeholder="Contraseña" required>
+                <input type="text" id="reg-telefono" placeholder="Teléfono">
+                <input type="text" id="reg-direccion" placeholder="Dirección">
+                <button type="submit">Registrarse</button>
+            </form>
+
+            <p class="toggle" onclick="mostrarLogin()">
+                ¿Ya tienes cuenta? Inicia sesión
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <div>
+            <p>📍 Sahuayo, Michoacán</p>
+            <p>📞 353 000 0000</p>
+            <p>✉ contacto@segundaoportunidadcanina.mx</p>
+        </div>
+
+        <div class="social-icons">
+            <a href="https://instagram.com/TU_USUARIO" target="_blank">
+                <img src="img/instagram.png" alt="Instagram">
+            </a>
+            <a href="https://tiktok.com/@TU_USUARIO" target="_blank">
+                <img src="img/tiktok.png" alt="TikTok">
+            </a>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
+const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+function mostrarRegistro() {
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("register-section").classList.remove("hidden");
+}
+
+function mostrarLogin() {
+    document.getElementById("register-section").classList.add("hidden");
+    document.getElementById("login-section").classList.remove("hidden");
+}
+
+async function login(event) {
+    event.preventDefault();  // Prevenir envío del formulario
+    
+    console.log("Intentando login...");
+
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    // Validación básica
+    if (!email || !password) {
+        alert("Por favor completa todos los campos");
+        return;
+    }
+
+    try {
+        // Verificar ADMIN
+        const { data: admin, error: errorAdmin } = await supabase
+            .from("Administradores")
+            .select("*")
+            .eq("Correo", email)
+            .eq("Contraseña", password)
+            .single();
+
+        if (admin) {
+            console.log("Admin encontrado:", admin);
+            localStorage.setItem("rol", "admin");
+            localStorage.setItem("usuario_id", admin.ID);
+            localStorage.setItem("usuario_nombre", admin.Nombre || "Administrador");
+            
+            alert("¡Bienvenido Administrador!");
+            window.location.href = "admin.html";
+            return;
+        }
+
+        // Verificar USUARIO
+        const { data: user, error: errorUser } = await supabase
+            .from("Usuarios")
+            .select("*")
+            .eq("Correo", email)
+            .eq("Contraseña", password)
+            .single();
+
+        if (user) {
+            console.log("Usuario encontrado:", user);
+            localStorage.setItem("rol", "usuario");
+            localStorage.setItem("usuario_id", user.ID);
+            localStorage.setItem("usuario_nombre", user.Nombre || "Usuario");
+            
+            alert("¡Bienvenido!");
+            window.location.href = "perfil.html";
+            return;
+        }
+
+        // Si no se encontró en ninguna tabla
+        alert("Correo o contraseña incorrectos");
+
+    } catch (err) {
+        console.error("Error detallado:", err);
+        alert("Error al conectar con la base de datos. Revisa la consola.");
+    }
+}
+
+async function registrar(event) {
+    event.preventDefault();  // Prevenir envío del formulario
+
+    const nombre = document.getElementById("reg-nombre").value.trim();
+    const email = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password").value;
+    const telefono = document.getElementById("reg-telefono").value.trim();
+    const direccion = document.getElementById("reg-direccion").value.trim();
+
+    // Validación
+    if (!nombre || !email || !password) {
+        alert("Por favor completa los campos obligatorios");
+        return;
+    }
+
+    try {
+        // Verificar si el correo ya existe
+        const { data: existe } = await supabase
+            .from("Usuarios")
+            .select("Correo")
+            .eq("Correo", email)
+            .single();
+
+        if (existe) {
+            alert("Este correo ya está registrado");
+            return;
+        }
+
+        const { error } = await supabase
+            .from("Usuarios")
+            .insert([{
+                Nombre: nombre,
+                Correo: email,
+                Contraseña: password,
+                Telefono: telefono,
+                Direccion: direccion
+            }]);
+
+        if (error) {
+            console.error("Error al registrar:", error);
+            alert("Error al registrar: " + error.message);
+        } else {
+            alert("Registro exitoso. Ahora puedes iniciar sesión.");
+            mostrarLogin();
+            
+            // Limpiar formulario
+            document.getElementById("register-form").reset();
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        alert("Error al conectar con la base de datos");
+    }
+}
+</script>
+
+</body>
+</html>
