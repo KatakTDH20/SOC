@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Perfil - SOC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f4f4f4;
+}
+
+.header {
+    background: #72e48b;
+    padding: 15px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+}
+
+.container {
+    padding: 30px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    margin: auto;
+}
+
+button {
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.aprobar { background: green; color: white; }
+.rechazar { background: red; color: white; }
+
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">
+        Segunda Oportunidad Canina
+    </h2>
+
+    <nav>
+        <a href="index.html">Inicio</a>
+        <a href="perros.html">Perros</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Perfil</h2>
+
+        <p><strong>Nombre:</strong> <span id="nombre"></span></p>
+        <p><strong>Correo:</strong> <span id="correo"></span></p>
+        <p><strong>Teléfono:</strong> <span id="telefono"></span></p>
+
+        <hr>
+
+        <h3>Solicitud de adopción</h3>
+        <p id="adopcion-info">Sin solicitud</p>
+
+        <div id="admin-botones" style="display:none;">
+            <button class="aprobar" onclick="aprobar()">Aprobar</button>
+            <button class="rechazar" onclick="rechazar()">Rechazar</button>
+        </div>
+
+        <button onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="script.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", cargarPerfil);
+</script>
+
+</body>
+</html>

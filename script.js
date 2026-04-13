@@ -149,10 +149,7 @@ async function diagnosticarConexion() {
         }
         
         // Probar conexión a Usuarios
-        const { data: users, error: errorUsers } = await db
-            .from("usuarios")
-            .select("id")
-            .limit(1);
+        const { data: users, error: errorUsers } = await db.from("usuarios").select("id").limit(1);
             
         if (errorUsers) {
             console.error("❌ Error en tabla Usuarios:", errorUsers);
@@ -273,10 +270,7 @@ async function guardarCambios() {
     });
 
     for (const id in cambios) {
-        const { error } = await db
-            .from("perros")
-            .update(cambios[id])
-            .eq("id", id);
+        const { error } = await db.from("perros").update(cambios[id]).eq("id", id);
 
         if (error) {
             console.error(error);
@@ -301,9 +295,7 @@ async function registrarPerro() {
             estado_salud: document.getElementById("new-salud").value
         };
 
-        const { error } = await db
-            .from("perros")
-            .insert([nuevo]);
+        const { error } = await db.from("perros").insert([nuevo]);
 
         if (error) {
             alert("Error al registrar: " + error.message);
@@ -343,6 +335,191 @@ async function cargarAdmin() {
     } catch (err) {
         console.error(err);
     }
+}
+
+async function registrar(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("reg-email").value;
+
+    // 🔍 verificar si ya existe
+    const { data } = await db
+        .from("usuarios")
+        .select("correo")
+        .eq("correo", email);
+
+    if (data.length > 0) {
+        alert("❌ Este correo ya está registrado");
+        return;
+    }
+
+    const nuevo = {
+        nombre: document.getElementById("reg-nombre").value,
+        correo: email,
+        contrasena: document.getElementById("reg-password").value,
+        telefono: document.getElementById("reg-telefono").value,
+        direccion: document.getElementById("reg-direccion").value
+    };
+
+    const { data: user, error } = await db
+        .from("usuarios")
+        .insert([nuevo])
+        .select();
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    // 🔥 auto login
+    localStorage.setItem("rol", "usuario");
+    localStorage.setItem("usuario_id", user[0].id);
+
+    window.location.href = "perfil.html";
+}
+
+const loginForm = document.getElementById("login-form");
+
+if (loginForm) {
+    loginForm.addEventListener("submit", login);
+}
+
+async function login(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    if (!email || !password) {
+        alert("Completa todos los campos");
+        return;
+    }
+
+    try {
+        // ADMIN
+        const { data: admin } = await db
+            .from("administradores")
+            .select("*")
+            .eq("correo", email)
+            .eq("contrasena", password);
+
+        if (admin.length > 0) {
+            localStorage.setItem("rol", "admin");
+            localStorage.setItem("usuario_id", admin[0].id);
+
+            window.location.href = "admin.html";
+            return;
+        }
+
+        // USUARIO
+        const { data: user } = await db
+            .from("usuarios")
+            .select("*")
+            .eq("correo", email)
+            .eq("contrasena", password);
+
+        if (user.length > 0) {
+            localStorage.setItem("rol", "usuario");
+            localStorage.setItem("usuario_id", user[0].id);
+
+            window.location.href = "perfil.html";
+            return;
+        }
+
+        alert("Correo o contraseña incorrectos");
+
+    } catch (error) {
+        console.error(error);
+        alert("Error de conexión");
+    }
+}
+
+async function cargarPerfil() {
+    const id = localStorage.getItem("usuario_id");
+    const rol = localStorage.getItem("rol");
+
+    if (!id) return;
+
+    let tabla = rol === "admin" ? "administradores" : "usuarios";
+
+    const { data } = await db
+        .from(tabla)
+        .select("*")
+        .eq("id", id)
+        .single();
+
+    document.getElementById("nombre").textContent = data.nombre;
+    document.getElementById("correo").textContent = data.correo;
+    document.getElementById("telefono").textContent = data.telefono;
+
+    // 🔥 ADOPCIÓN
+    const { data: adopcion } = await db
+        .from("adopciones")
+        .select("*, perros(nombre)")
+        .eq("id_usuarios", id)
+        .eq("estado", "En revision")
+        .single();
+
+    if (adopcion) {
+        document.getElementById("adopcion-info").textContent =
+            "Perro: " + adopcion.perros.nombre;
+
+        if (rol === "admin") {
+            document.getElementById("admin-botones").style.display = "block";
+        }
+    }
+}
+
+async function aprobar() {
+    const id = localStorage.getItem("usuario_id");
+
+    await db
+        .from("adopciones")
+        .update({ estado: "Aceptada" })
+        .eq("id_usuarios", id);
+
+    alert("Aprobada");
+    location.reload();
+}
+
+async function rechazar() {
+    const id = localStorage.getItem("usuario_id");
+
+    await db
+        .from("adopciones")
+        .delete()
+        .eq("id_usuarios", id);
+
+    alert("Rechazada");
+    location.reload();
+}
+
+async function cargarUsuarios() {
+    const { data } = await db
+        .from("usuarios")
+        .select("*");
+
+    const tabla = document.getElementById("tabla-usuarios");
+
+    tabla.innerHTML = "";
+
+    data.forEach(u => {
+        tabla.innerHTML += `
+        <tr>
+            <td>${u.id}</td>
+            <td>${u.nombre}</td>
+            <td>${u.correo}</td>
+            <td>
+                <button onclick="verUsuario(${u.id})">Ver</button>
+            </td>
+        </tr>
+        `;
+    });
+}
+
+function verUsuario(id) {
+    localStorage.setItem("usuario_id", id);
+    window.location.href = "perfil.html";
 }
 // Ejecutar diagnóstico al cargar
 setTimeout(diagnosticarConexion, 1000);
