@@ -116,5 +116,52 @@ async function diagnosticarConexion() {
     }
 }
 
+async function cargarPerros() {
+    const tabla = document.getElementById("tabla-perros");
+
+    try {
+        const { data, error } = await supabase
+            .from("perros")
+            .select("*");
+
+        if (error) {
+            console.error(error);
+            tabla.innerHTML = "<tr><td colspan='10'>Error al cargar</td></tr>";
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            tabla.innerHTML = "<tr><td colspan='10'>No hay perros</td></tr>";
+            return;
+        }
+
+        tabla.innerHTML = "";
+
+        data.forEach(perro => {
+            tabla.innerHTML += `
+                <tr>
+                    <td>${perro.id}</td>
+                    <td>${perro.nombre}</td>
+                    <td>${perro.sexo}</td>
+                    <td>${perro.edad}</td>
+                    <td>${perro.raza}</td>
+                    <td>${perro.fecha_rescate}</td>
+                    <td>${perro.estado_adopcion}</td>
+                    <td>${perro.estado_entrenamiento}</td>
+                    <td>${perro.estado_salud}</td>
+                    <td>
+                        ${localStorage.getItem("rol") === "usuario" && perro.estado_adopcion === "Disponible"
+                            ? `<button class="adoptar">Adoptar</button>`
+                            : ""}
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (err) {
+        console.error(err);
+        tabla.innerHTML = "<tr><td colspan='10'>Error de conexión</td></tr>";
+    }
+}
 // Ejecutar diagnóstico al cargar
 setTimeout(diagnosticarConexion, 1000);
