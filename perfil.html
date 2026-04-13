@@ -4,32 +4,20 @@
 <meta charset="UTF-8">
 <title>Perfil - SOC</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #f4f4f4;
-}
-
-.header {
-    background: #72e48b;
-    padding: 15px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-}
-
 .container {
-    padding: 30px;
+    padding: 40px;
 }
 
 .card {
     background: white;
-    padding: 20px;
+    padding: 25px;
     border-radius: 10px;
     max-width: 500px;
     margin: auto;
+    text-align: center;
 }
 
 button {
@@ -40,20 +28,31 @@ button {
 
 .aprobar { background: green; color: white; }
 .rechazar { background: red; color: white; }
-
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header class="header">
-    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">
-        Segunda Oportunidad Canina
-    </h2>
+    <div class="logo-container">
+        <a href="index.html">
+            <img src="img/logo.png">
+            <h1>Segunda Oportunidad Canina</h1>
+        </a>
+    </div>
 
-    <nav>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+
+    <nav class="nav" id="nav">
         <a href="index.html">Inicio</a>
         <a href="perros.html">Perros</a>
+
+        <!-- dinámico -->
+        <a href="sesion.html" id="login-link">Iniciar</a>
+        <a href="perfil.html" id="user-link" style="display:none;">Mi Perfil</a>
+        <a href="admin.html" id="admin-profile-link" style="display:none;">Admin</a>
+        <a href="lista.html" id="admin-list-link" style="display:none;">Usuarios</a>
     </nav>
 </header>
 
@@ -75,16 +74,39 @@ button {
             <button class="rechazar" onclick="rechazar()">Rechazar</button>
         </div>
 
-        <button onclick="cerrarSesion()">Cerrar sesión</button>
+        <button id="logout-btn" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
 </div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-info">
+            <p>📍 Sahuayo, Michoacán</p>
+            <p>📞 353 000 0000</p>
+            <p>✉ contacto@segundaoportunidadcanina.mx</p>
+        </div>
+
+        <div class="social-icons">
+            <img src="img/instagram.png">
+            <img src="img/tiktok.png">
+        </div>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
 <script src="script.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", cargarPerfil);
+document.addEventListener("DOMContentLoaded", () => {
+    cargarPerfil();
+
+    // ocultar botón cerrar sesión si es admin
+    if (localStorage.getItem("rol") === "admin") {
+        document.getElementById("logout-btn").style.display = "none";
+    }
+});
 </script>
 
 </body>
