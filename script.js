@@ -81,6 +81,17 @@ function cerrarSesion() {
     window.location.href = "sesion.html";
 }
 
+function mostrarBotonesAdmin() {
+    const rol = localStorage.getItem("rol");
+    const botones = document.getElementById("admin-botones");
+
+    if (botones && rol === "admin") {
+        botones.style.display = "block";
+    }
+}
+
+mostrarBotonesAdmin();
+
 // Función de diagnóstico
 async function diagnosticarConexion() {
     console.log("🔍 Diagnosticando conexión...");
@@ -135,27 +146,40 @@ async function diagnosticarConexion() {
 
 async function cargarPerros() {
     const tabla = document.getElementById("tabla-perros");
+    const rol = localStorage.getItem("rol");
 
     try {
-        const { data, error } = await db
-            .from("perros")
-            .select("*");
+        const { data, error } = await db.from("perros").select("*");
 
-        if (error) {
-            console.error(error);
-            tabla.innerHTML = "<tr><td colspan='10'>Error al cargar</td></tr>";
-            return;
-        }
-
-        if (!data || data.length === 0) {
-            tabla.innerHTML = "<tr><td colspan='10'>No hay perros</td></tr>";
-            return;
-        }
+        if (error) throw error;
 
         tabla.innerHTML = "";
 
         data.forEach(perro => {
-            tabla.innerHTML += `
+
+            if (rol === "admin") {
+                tabla.innerHTML += `
+                <tr>
+                    <td>${perro.id}</td>
+
+                    <td><input value="${perro.nombre}" id="nombre-${perro.id}"></td>
+                    <td><input value="${perro.sexo}" id="sexo-${perro.id}"></td>
+                    <td><input value="${perro.edad}" id="edad-${perro.id}"></td>
+                    <td><input value="${perro.raza}" id="raza-${perro.id}"></td>
+                    <td><input value="${perro.fecha_rescate}" id="fecha-${perro.id}"></td>
+                    <td><input value="${perro.estado_adopcion}" id="adopcion-${perro.id}"></td>
+                    <td><input value="${perro.estado_entrenamiento}" id="entrenamiento-${perro.id}"></td>
+                    <td><input value="${perro.estado_salud}" id="salud-${perro.id}"></td>
+
+                    <td>
+                        <button class="eliminar" onclick="eliminarPerro(${perro.id})">Eliminar</button>
+                    </td>
+                </tr>
+                `;
+            } 
+            
+            else if (rol === "usuario") {
+                tabla.innerHTML += `
                 <tr>
                     <td>${perro.id}</td>
                     <td>${perro.nombre}</td>
@@ -167,17 +191,117 @@ async function cargarPerros() {
                     <td>${perro.estado_entrenamiento}</td>
                     <td>${perro.estado_salud}</td>
                     <td>
-                        ${localStorage.getItem("rol") === "usuario" && perro.estado_adopcion === "Disponible"
+                        ${perro.estado_adopcion === "Disponible"
                             ? `<button class="adoptar">Adoptar</button>`
                             : ""}
                     </td>
                 </tr>
-            `;
+                `;
+            } 
+            
+            else {
+                tabla.innerHTML += `
+                <tr>
+                    <td>${perro.id}</td>
+                    <td>${perro.nombre}</td>
+                    <td>${perro.sexo}</td>
+                    <td>${perro.edad}</td>
+                    <td>${perro.raza}</td>
+                    <td>${perro.fecha_rescate}</td>
+                    <td>${perro.estado_adopcion}</td>
+                    <td>${perro.estado_entrenamiento}</td>
+                    <td>${perro.estado_salud}</td>
+                    <td>-</td>
+                </tr>
+                `;
+            }
+
         });
 
     } catch (err) {
         console.error(err);
-        tabla.innerHTML = "<tr><td colspan='10'>Error de conexión</td></tr>";
+        tabla.innerHTML = "<tr><td colspan='10'>Error</td></tr>";
+    }
+}
+
+async function eliminarPerro(id) {
+    if (!confirm("¿Eliminar perro?")) return;
+
+    const { error } = await db.from("perros").delete().eq("id", id);
+
+    if (error) {
+        alert("Error al eliminar");
+        console.error(error);
+    } else {
+        alert("Eliminado");
+        cargarPerros();
+    }
+}
+
+async function guardarCambios() {
+    const { data } = await db.from("perros").select("*");
+
+    for (let perro of data) {
+        const id = perro.id;
+
+        await db.from("perros").update({
+            nombre: document.getElementById(`nombre-${id}`).value,
+            sexo: document.getElementById(`sexo-${id}`).value,
+            edad: document.getElementById(`edad-${id}`).value,
+            raza: document.getElementById(`raza-${id}`).value,
+            fecha_rescate: document.getElementById(`fecha-${id}`).value,
+            estado_adopcion: document.getElementById(`adopcion-${id}`).value,
+            estado_entrenamiento: document.getElementById(`entrenamiento-${id}`).value,
+            estado_salud: document.getElementById(`salud-${id}`).value
+        }).eq("id", id);
+    }
+
+    alert("Cambios guardados");
+    cargarPerros();
+}
+
+async function insertarPerro() {
+    const { error } = await db.from("perros").insert([{
+        nombre: "Nuevo",
+        sexo: "M",
+        edad: 1,
+        raza: "Desconocida",
+        fecha_rescate: new Date().toISOString().split("T")[0],
+        estado_adopcion: "No disponible",
+        estado_entrenamiento: "Sin adiestrar",
+        estado_salud: "En revision"
+    }]);
+
+    if (error) {
+        alert("Error al insertar");
+    } else {
+        cargarPerros();
+    }
+}
+
+async function cargarAdmin() {
+    const id = localStorage.getItem("usuario_id");
+
+    if (!id) return;
+
+    try {
+        const { data, error } = await db
+            .from("administradores")
+            .select("*")
+            .eq("id", id)
+            .single();
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        document.getElementById("nombre").textContent = data.nombre;
+        document.getElementById("correo").textContent = data.correo;
+        document.getElementById("telefono").textContent = data.telefono;
+
+    } catch (err) {
+        console.error(err);
     }
 }
 // Ejecutar diagnóstico al cargar
