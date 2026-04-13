@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Usuarios - SOC</title>
-
+<link rel="stylesheet" href="style.css">
 <style>
 body { font-family: Arial; margin:0; }
 
@@ -33,15 +33,19 @@ button {
 <body>
 
 <header class="header">
-    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">
-        SOC
-    </h2>
+    <div class="logo-container">
+        <a href="index.html">
+            <img src="img/logo.png" alt="Logo">
+            <h1>Segunda Oportunidad Canina</h1>
+        </a>
+    </div>
 
-    <nav>
-        <a href="index.html">Inicio</a>
-        <a href="perros.html">Perros</a>
-        <a href="admin.html">Mi perfil</a>
-    </nav>
+    <nav class="nav">
+        <a href="index.html">Página principal</a>
+        <a href="sesion.html" id="login-link">Iniciar / Registrar</a>
+        <a href="perfil.html" id="user-link" style="display:none;">Mi Perfil</a>
+        <a href="admin.html" id="admin-profile-link" style="display:none;">Mi Perfil (Admin)</a>
+        <a href="lista.html" id="admin-list-link" style="display:none;">Usuarios</a>    </nav>
 </header>
 
 <h2 style="text-align:center;">Usuarios registrados</h2>
