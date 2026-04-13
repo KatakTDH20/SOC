@@ -70,13 +70,13 @@ async function diagnosticarConexion() {
     
     try {
         // Verificar si supabase está definido
-        if (typeof supabase === 'undefined') {
+        if (typeof db === 'undefined') {
             console.error("❌ Variable 'supabase' no definida");
             return;
         }
         
         // Probar conexión a Perros
-        const { data: perros, error: errorPerros } = await supabase
+        const { data: perros, error: errorPerros } = await db
             .from("perros")
             .select("id")
             .limit(1);
@@ -88,7 +88,7 @@ async function diagnosticarConexion() {
         }
         
         // Probar conexión a Administradores
-        const { data: admins, error: errorAdmins } = await supabase
+        const { data: admins, error: errorAdmins } = await db
             .from("administradores")
             .select("id")
             .limit(1);
@@ -100,7 +100,7 @@ async function diagnosticarConexion() {
         }
         
         // Probar conexión a Usuarios
-        const { data: users, error: errorUsers } = await supabase
+        const { data: users, error: errorUsers } = await db
             .from("usuarios")
             .select("id")
             .limit(1);
@@ -120,7 +120,7 @@ async function cargarPerros() {
     const tabla = document.getElementById("tabla-perros");
 
     try {
-        const { data, error } = await supabase
+        const { data, error } = await db
             .from("perros")
             .select("*");
 

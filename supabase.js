@@ -2,15 +2,14 @@
 const SUPABASE_URL = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
 
-let supabase;
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Inicializar Supabase
 try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     console.log("✅ Supabase inicializado correctamente");
     
     // Verificar conexión
-    supabase.from("perros").select("count", { count: 'exact', head: true })
+    db.from("perros").select("count", { count: 'exact', head: true })
         .then(({ count, error }) => {
             if (error) {
                 console.error("❌ Error de conexión:", error.message);
@@ -25,7 +24,7 @@ try {
 // Función para verificar el estado de la conexión
 async function verificarConexion() {
     try {
-        const { data, error } = await supabase.from("perros").select("id").limit(1);
+        const { data, error } = await db.from("perros").select("id").limit(1);
         if (error) throw error;
         console.log("✅ Conexión a Supabase funcionando");
         return true;

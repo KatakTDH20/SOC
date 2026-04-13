@@ -217,7 +217,7 @@ async function login(event) {
 
     try {
         // Verificar ADMIN
-        const { data: admin, error: errorAdmin } = await supabase
+        const { data: admin, error: errorAdmin } = await db
             .from("administradores")
             .select("id, nombre, correo, contrasena")
             .eq("correo", email)
@@ -237,7 +237,7 @@ async function login(event) {
         }
 
         // Verificar USUARIO
-        const { data: user, error: errorUser } = await supabase
+        const { data: user, error: errorUser } = db
             .from("usuarios")
             .select("id, nombre, correo, contrasena")
             .eq("correo", email)
