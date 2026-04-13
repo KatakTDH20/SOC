@@ -77,7 +77,7 @@ async function diagnosticarConexion() {
         
         // Probar conexión a Perros
         const { data: perros, error: errorPerros } = await supabase
-            .from("Perros")
+            .from("perros")
             .select("id")
             .limit(1);
             
@@ -89,7 +89,7 @@ async function diagnosticarConexion() {
         
         // Probar conexión a Administradores
         const { data: admins, error: errorAdmins } = await supabase
-            .from("Administradores")
+            .from("administradores")
             .select("id")
             .limit(1);
             
@@ -101,7 +101,7 @@ async function diagnosticarConexion() {
         
         // Probar conexión a Usuarios
         const { data: users, error: errorUsers } = await supabase
-            .from("Usuarios")
+            .from("usuarios")
             .select("id")
             .limit(1);
             
