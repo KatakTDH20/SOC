@@ -4,19 +4,17 @@
 <meta charset="UTF-8">
 <title>Perros - SOC</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<link rel="stylesheet" href="style.css">
 <style>
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f4f4f4;
-
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-/* HEADER */
 .header {
     background: #72e48b;
     color: white;
@@ -45,69 +43,105 @@ body {
     font-weight: bold;
 }
 
-/* CONTENIDO */
 .container {
     flex: 1;
     padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 h2 {
     text-align: center;
+    color: #163a59;
 }
 
-/* TABLA CON SCROLL */
+/* Filtros */
+.filtros {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filtros select, .filtros input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
 .tabla-container {
     margin-top: 20px;
-    overflow: auto;
-    max-height: 400px;
-    border: 1px solid #ccc;
+    overflow-x: auto;
     background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 table {
     border-collapse: collapse;
-    min-width: 1000px;
     width: 100%;
+    min-width: 1000px;
 }
 
 th, td {
-    border: 1px solid #ccc;
-    padding: 10px;
+    border: 1px solid #ddd;
+    padding: 12px;
     text-align: center;
 }
 
 th {
     background: #163a59;
     color: white;
+    font-weight: bold;
 }
 
-/* BOTONES */
+tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+tr:hover {
+    background: #f0f0f0;
+}
+
 button {
-    padding: 5px 10px;
+    padding: 8px 15px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
+    margin: 2px;
 }
 
 .adoptar {
     background: #72e48b;
+    color: white;
+}
+
+.adoptar:hover {
+    background: #5ccf76;
+}
+
+.adoptar:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 }
 
 .eliminar {
-    background: red;
+    background: #dc3545;
     color: white;
 }
 
-.guardar {
-    background: #163a59;
-    color: white;
+.eliminar:hover {
+    background: #c82333;
 }
 
-/* FOOTER PEGADO */
 .footer {
     background: #163a59;
     color: white;
     padding: 20px;
+    margin-top: auto;
 }
 
 .footer-content {
@@ -122,10 +156,26 @@ button {
     filter: brightness(0) invert(1);
 }
 
+.estado-disponible {
+    color: green;
+    font-weight: bold;
+}
+
+.estado-no-disponible {
+    color: red;
+}
+
 @media (max-width: 768px) {
-    .footer-content {
+    .header {
         flex-direction: column;
-        text-align: center;
+    }
+    
+    .nav {
+        margin-top: 10px;
+    }
+    
+    .nav a {
+        margin: 0 10px;
     }
 }
 </style>
@@ -133,11 +183,10 @@ button {
 
 <body>
 
-<!-- HEADER -->
 <header class="header">
     <div class="logo-container">
         <a href="index.html">
-            <img src="img/logo.png">
+            <img src="img/logo.png" alt="Logo">
             <h1>Segunda Oportunidad Canina</h1>
         </a>
     </div>
@@ -145,13 +194,31 @@ button {
     <nav class="nav">
         <a href="index.html">Página principal</a>
         <a href="perros.html">Perros</a>
-        <a href="sesion.html">Iniciar sesión</a>
+        <a href="sesion.html" id="nav-login">Iniciar sesión</a>
+        <a href="perfil.html" id="nav-perfil" style="display:none;">Mi Perfil</a>
+        <a href="admin.html" id="nav-admin" style="display:none;">Admin</a>
     </nav>
 </header>
 
-<!-- CONTENIDO -->
 <div class="container">
-    <h2>Lista de Perros</h2>
+    <h2>🐕 Perros en Adopción</h2>
+    
+    <div class="filtros">
+        <select id="filtro-estado">
+            <option value="">Todos los estados</option>
+            <option value="Disponible">Disponibles</option>
+            <option value="No disponible">No disponibles</option>
+        </select>
+        
+        <select id="filtro-entrenamiento">
+            <option value="">Todos los entrenamientos</option>
+            <option value="Adiestrado">Adiestrados</option>
+            <option value="En adiestramiento">En adiestramiento</option>
+            <option value="Sin adiestrar">Sin adiestrar</option>
+        </select>
+        
+        <button onclick="cargarPerros()">🔄 Actualizar</button>
+    </div>
 
     <div class="tabla-container">
         <table>
@@ -169,29 +236,13 @@ button {
                     <th>Acciones</th>
                 </tr>
             </thead>
-
             <tbody id="tabla-perros">
-
-                <!-- EJEMPLO -->
-                <tr>
-                    <td>1</td>
-                    <td>Max</td>
-                    <td>Macho</td>
-                    <td>3</td>
-                    <td>Mestizo</td>
-                    <td>2024-02-10</td>
-                    <td>Disponible</td>
-                    <td>Adiestrado</td>
-                    <td>Saludable</td>
-                    <td class="acciones"></td>
-                </tr>
-
+                <tr><td colspan="10" style="text-align:center;">Cargando perros...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- FOOTER -->
 <footer class="footer">
     <div class="footer-content">
         <div>
@@ -199,10 +250,9 @@ button {
             <p>📞 353 000 0000</p>
             <p>✉ contacto@segundaoportunidadcanina.mx</p>
         </div>
-
         <div class="social-icons">
-            <a href="#"><img src="img/instagram.png"></a>
-            <a href="#"><img src="img/tiktok.png"></a>
+            <a href="https://www.instagram.com/segundaoportunidadcanina/"><img src="img/instagram.png" alt="Instagram"></a>
+            <a href="https://www.tiktok.com/@soc.sahuayo"><img src="img/tiktok.png" alt="TikTok"></a>
         </div>
     </div>
 </footer>
@@ -214,96 +264,188 @@ const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 const rol = localStorage.getItem("rol");
+const usuarioId = localStorage.getItem("usuario_id");
 
+// Actualizar menú según rol
+function actualizarMenuNav() {
+    const navLogin = document.getElementById("nav-login");
+    const navPerfil = document.getElementById("nav-perfil");
+    const navAdmin = document.getElementById("nav-admin");
+    
+    if (!navLogin) return;
+    
+    if (rol === "usuario") {
+        navLogin.style.display = "none";
+        navPerfil.style.display = "inline";
+        navAdmin.style.display = "none";
+    } else if (rol === "admin") {
+        navLogin.style.display = "none";
+        navPerfil.style.display = "inline";
+        navAdmin.style.display = "inline";
+    } else {
+        navLogin.style.display = "inline";
+        navPerfil.style.display = "none";
+        navAdmin.style.display = "none";
+    }
+}
+
+// Cargar perros
 async function cargarPerros() {
-    const { data, error } = await supabaseClient
+    const tabla = document.getElementById("tabla-perros");
+    tabla.innerHTML = '<tr><td colspan="10" style="text-align:center;">Cargando...</td></tr>';
+    
+    const filtroEstado = document.getElementById("filtro-estado")?.value || "";
+    const filtroEntrenamiento = document.getElementById("filtro-entrenamiento")?.value || "";
+    
+    let query = supabaseClient
         .from("Perros")
-        .select("*");
-
+        .select("*")
+        .order("id", { ascending: true });
+    
+    if (filtroEstado) {
+        query = query.eq("estado_adopcion", filtroEstado);
+    }
+    
+    if (filtroEntrenamiento) {
+        query = query.eq("estado_entrenamiento", filtroEntrenamiento);
+    }
+    
+    const { data, error } = await query;
+    
     if (error) {
-        console.error("Error cargando perros:", error);
+        console.error("Error:", error);
+        tabla.innerHTML = '<tr><td colspan="10" style="text-align:center;color:red;">Error al cargar perros</td></tr>';
         return;
     }
-
-    const tabla = document.getElementById("tabla-perros");
+    
+    if (!data || data.length === 0) {
+        tabla.innerHTML = '<tr><td colspan="10" style="text-align:center;">No hay perros registrados</td></tr>';
+        return;
+    }
+    
     tabla.innerHTML = "";
-
+    
     data.forEach(perro => {
         const fila = document.createElement("tr");
+        
+        // Formatear fecha
+        const fechaRescate = perro.fecha_rescate ? new Date(perro.fecha_rescate).toLocaleDateString('es-MX') : 'N/A';
+        
+        // Clase CSS para estado
+        const estadoClass = perro.estado_adopcion === 'Disponible' ? 'estado-disponible' : 'estado-no-disponible';
+        
         fila.innerHTML = `
-            <td>${perro.ID}</td>
-            <td>${perro.Nombre}</td>
-            <td>${perro.Sexo}</td>
-            <td>${perro.Edad}</td>
-            <td>${perro.Raza}</td>
-            <td>${perro.Fecha_Rescate}</td>
-            <td>${perro.Estado_Adopcion}</td>
-            <td>${perro.Estado_Entrenamiento}</td>
-            <td>${perro.Estado_Salud}</td>
+            <td>${perro.id}</td>
+            <td><strong>${perro.nombre}</strong></td>
+            <td>${perro.sexo}</td>
+            <td>${perro.edad} año(s)</td>
+            <td>${perro.raza}</td>
+            <td>${fechaRescate}</td>
+            <td class="${estadoClass}">${perro.estado_adopcion}</td>
+            <td>${perro.estado_entrenamiento}</td>
+            <td>${perro.estado_salud}</td>
             <td class="acciones"></td>
         `;
+        
         tabla.appendChild(fila);
     });
-
+    
     agregarBotones();
 }
 
+// Agregar botones según rol
 function agregarBotones() {
     document.querySelectorAll(".acciones").forEach(cell => {
         const fila = cell.parentElement;
-        const estado = fila.children[6].textContent.trim();
         const idPerro = fila.children[0].textContent;
-        cell.innerHTML = ""; // Limpiar
-
+        const estado = fila.children[6].textContent.trim();
+        
+        cell.innerHTML = "";
+        
         if (rol === "usuario") {
             const btn = document.createElement("button");
-            btn.textContent = "Adoptar";
+            btn.textContent = "🐾 Adoptar";
             btn.className = "adoptar";
-            if (estado !== "Disponible") btn.disabled = true;
-            btn.onclick = () => adoptar(idPerro);
+            
+            if (estado !== "Disponible") {
+                btn.disabled = true;
+                btn.textContent = "No disponible";
+            }
+            
+            btn.onclick = () => solicitarAdopcion(idPerro);
             cell.appendChild(btn);
         } else if (rol === "admin") {
             const btnEliminar = document.createElement("button");
-            btnEliminar.textContent = "Eliminar";
+            btnEliminar.textContent = "🗑️ Eliminar";
             btnEliminar.className = "eliminar";
             btnEliminar.onclick = () => eliminarPerro(idPerro);
             cell.appendChild(btnEliminar);
+        } else {
+            // Visitante
+            const mensaje = document.createElement("span");
+            mensaje.textContent = "Inicia sesión";
+            mensaje.style.fontSize = "12px";
+            mensaje.style.color = "#666";
+            cell.appendChild(mensaje);
         }
     });
 }
 
-async function adoptar(idPerro) {
-    const usuarioId = localStorage.getItem("usuario_id");
+// Solicitar adopción
+async function solicitarAdopcion(idPerro) {
+    if (!usuarioId) {
+        alert("Debes iniciar sesión primero");
+        window.location.href = "sesion.html";
+        return;
+    }
     
-    const { error } = await supabaseClient.from("Adopciones").insert([{
-        ID_Perros: idPerro,
-        ID_Usuarios: usuarioId,
-        Estado: "En revision"
-    }]);
-
+    const confirmacion = confirm("¿Confirmas la solicitud de adopción?");
+    if (!confirmacion) return;
+    
+    const { error } = await supabaseClient
+        .from("Adopciones")
+        .insert([{
+            id_perro: idPerro,
+            id_usuario: usuarioId,
+            estado: "En revision"
+        }]);
+    
     if (error) {
+        console.error("Error:", error);
         alert("Error al solicitar adopción");
     } else {
-        alert("Solicitud enviada");
+        alert("✅ Solicitud enviada correctamente");
         cargarPerros();
     }
 }
 
+// Eliminar perro (admin)
 async function eliminarPerro(id) {
-    if (!confirm("¿Eliminar este perro?")) return;
+    if (!confirm("¿Estás seguro de eliminar este perro?")) return;
     
-    const { error } = await supabaseClient.from("Perros").delete().eq("ID", id);
+    const { error } = await supabaseClient
+        .from("Perros")
+        .delete()
+        .eq("id", id);
     
     if (error) {
-        alert("Error al eliminar");
+        console.error("Error:", error);
+        alert("Error al eliminar perro");
     } else {
-        alert("Perro eliminado");
+        alert("✅ Perro eliminado");
         cargarPerros();
     }
 }
 
-// Cargar al iniciar
-cargarPerros();
+// Configurar filtros
+document.addEventListener('DOMContentLoaded', () => {
+    actualizarMenuNav();
+    cargarPerros();
+    
+    // Eventos de filtros
+    document.getElementById("filtro-estado")?.addEventListener("change", cargarPerros);
+    document.getElementById("filtro-entrenamiento")?.addEventListener("change", cargarPerros);
+});
 </script>
 
 </body>

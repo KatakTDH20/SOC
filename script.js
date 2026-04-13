@@ -42,6 +42,42 @@ if (form) {
     });
 }
 
+// Asegurar que el menú toggle funcione
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById("menu-toggle");
+    const nav = document.getElementById("nav");
+    
+    if (toggle && nav) {
+        // Remover eventos previos si existen
+        toggle.removeEventListener('click', toggleMenu);
+        
+        // Definir la función
+        function toggleMenu(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            nav.classList.toggle("active");
+            console.log("Toggle clickeado, nav active:", nav.classList.contains("active"));
+        }
+        
+        // Agregar evento
+        toggle.addEventListener('click', toggleMenu);
+        
+        // Cerrar menú al hacer clic en un enlace
+        nav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                nav.classList.remove('active');
+            });
+        });
+        
+        // Cerrar menú al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+                nav.classList.remove('active');
+            }
+        });
+    }
+});
+
 // Actualizar menú según rol
 function actualizarMenu() {
     const rol = localStorage.getItem("rol");
