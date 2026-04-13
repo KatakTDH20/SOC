@@ -160,7 +160,7 @@ button {
 const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
 const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // 🔒 PROTECCIÓN
 const rol = localStorage.getItem("rol");
@@ -174,7 +174,7 @@ async function cargarAdmin() {
 
     const id = localStorage.getItem("usuario_id");
 
-    const { data } = await supabase
+    const { data } = await supabaseClient
         .from("Administradores")
         .select("*")
         .eq("ID", id)

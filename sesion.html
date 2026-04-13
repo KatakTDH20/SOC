@@ -203,7 +203,7 @@
 const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
 const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 function mostrarRegistro() {
     document.getElementById("login-section").classList.add("hidden");
@@ -231,7 +231,7 @@ async function login(event) {
 
     try {
         // Verificar ADMIN
-        const { data: admin, error: errorAdmin } = await supabase
+        const { data: admin, error: errorAdmin } = await supabaseClient
             .from("Administradores")
             .select("*")
             .eq("Correo", email)
@@ -250,7 +250,7 @@ async function login(event) {
         }
 
         // Verificar USUARIO
-        const { data: user, error: errorUser } = await supabase
+        const { data: user, error: errorUser } = await supabaseClient
             .from("Usuarios")
             .select("*")
             .eq("Correo", email)
@@ -294,7 +294,7 @@ async function registrar(event) {
 
     try {
         // Verificar si el correo ya existe
-        const { data: existe } = await supabase
+        const { data: existe } = await supabaseClient
             .from("Usuarios")
             .select("Correo")
             .eq("Correo", email)
@@ -305,7 +305,7 @@ async function registrar(event) {
             return;
         }
 
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from("Usuarios")
             .insert([{
                 Nombre: nombre,

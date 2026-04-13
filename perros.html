@@ -211,32 +211,25 @@ button {
 <script>
 const supabaseUrl = "https://jfubhwuqlzlmpwhpilwj.supabase.co";
 const supabaseKey = "sb_publishable_tT3vgF9kCFOGS9H9W1XKEA_2qFh2J9w";
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-
-const rol = localStorage.getItem("rol"); 
-// visitante | usuario | admin
-
-// 🔥 CONTROLAR BOTONES
-document.querySelectorAll(".acciones").forEach(cell => {
-
-    const fila = cell.parentElement;
-    const estado = fila.children[6].textContent.trim();
+const rol = localStorage.getItem("rol");
 
 async function cargarPerros() {
+    const { data, error } = await supabaseClient
+        .from("Perros")
+        .select("*");
 
-    const { data, error } = await supabase
-            .from("Perros")
-            .select("*");
+    if (error) {
+        console.error("Error cargando perros:", error);
+        return;
+    }
 
     const tabla = document.getElementById("tabla-perros");
     tabla.innerHTML = "";
 
     data.forEach(perro => {
-
         const fila = document.createElement("tr");
-
         fila.innerHTML = `
             <td>${perro.ID}</td>
             <td>${perro.Nombre}</td>
@@ -249,69 +242,68 @@ async function cargarPerros() {
             <td>${perro.Estado_Salud}</td>
             <td class="acciones"></td>
         `;
-
         tabla.appendChild(fila);
     });
 
     agregarBotones();
 }
 
-    cargarPerros();
-    
 function agregarBotones() {
-
     document.querySelectorAll(".acciones").forEach(cell => {
-
         const fila = cell.parentElement;
         const estado = fila.children[6].textContent.trim();
         const idPerro = fila.children[0].textContent;
+        cell.innerHTML = ""; // Limpiar
 
         if (rol === "usuario") {
             const btn = document.createElement("button");
             btn.textContent = "Adoptar";
-
-            if (estado !== "Disponible") {
-                btn.disabled = true;
-            }
-
+            btn.className = "adoptar";
+            if (estado !== "Disponible") btn.disabled = true;
             btn.onclick = () => adoptar(idPerro);
-
             cell.appendChild(btn);
-        }
-
-        else if (rol === "admin") {
-            const eliminar = document.createElement("button");
-            eliminar.textContent = "Eliminar";
-
-            eliminar.onclick = () => eliminarPerro(idPerro);
-
-            cell.appendChild(eliminar);
+        } else if (rol === "admin") {
+            const btnEliminar = document.createElement("button");
+            btnEliminar.textContent = "Eliminar";
+            btnEliminar.className = "eliminar";
+            btnEliminar.onclick = () => eliminarPerro(idPerro);
+            cell.appendChild(btnEliminar);
         }
     });
 }
 
 async function adoptar(idPerro) {
-
     const usuarioId = localStorage.getItem("usuario_id");
-
-    await supabase.from("Adopciones").insert([{
+    
+    const { error } = await supabaseClient.from("Adopciones").insert([{
         ID_Perros: idPerro,
         ID_Usuarios: usuarioId,
         Estado: "En revision"
     }]);
 
-    alert("Solicitud enviada");
+    if (error) {
+        alert("Error al solicitar adopción");
+    } else {
+        alert("Solicitud enviada");
+        cargarPerros();
+    }
 }
 
 async function eliminarPerro(id) {
-
-    await supabase.from("Perros").delete().eq("ID", id);
-
-    alert("Perro eliminado");
-    cargarPerros();
+    if (!confirm("¿Eliminar este perro?")) return;
+    
+    const { error } = await supabaseClient.from("Perros").delete().eq("ID", id);
+    
+    if (error) {
+        alert("Error al eliminar");
+    } else {
+        alert("Perro eliminado");
+        cargarPerros();
+    }
 }
 
-});
+// Cargar al iniciar
+cargarPerros();
 </script>
 
 </body>
