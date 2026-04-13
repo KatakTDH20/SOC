@@ -92,6 +92,27 @@ function mostrarBotonesAdmin() {
 
 mostrarBotonesAdmin();
 
+function agregarFila() {
+    const tabla = document.getElementById("tabla-perros");
+
+    tabla.innerHTML += `
+        <tr class="nueva-fila">
+            <td>Nuevo</td>
+            <td><input id="new-nombre"></td>
+            <td><input id="new-sexo"></td>
+            <td><input id="new-edad"></td>
+            <td><input id="new-raza"></td>
+            <td><input id="new-fecha"></td>
+            <td><input id="new-adopcion"></td>
+            <td><input id="new-entrenamiento"></td>
+            <td><input id="new-salud"></td>
+            <td>
+                <button onclick="registrarPerro()">Registrar</button>
+            </td>
+        </tr>
+    `;
+}
+
 // Función de diagnóstico
 async function diagnosticarConexion() {
     console.log("🔍 Diagnosticando conexión...");
@@ -239,43 +260,62 @@ async function eliminarPerro(id) {
 }
 
 async function guardarCambios() {
-    const { data } = await db.from("perros").select("*");
+    const inputs = document.querySelectorAll("input[data-id]");
 
-    for (let perro of data) {
-        const id = perro.id;
+    const cambios = {};
 
-        await db.from("perros").update({
-            nombre: document.getElementById(`nombre-${id}`).value,
-            sexo: document.getElementById(`sexo-${id}`).value,
-            edad: document.getElementById(`edad-${id}`).value,
-            raza: document.getElementById(`raza-${id}`).value,
-            fecha_rescate: document.getElementById(`fecha-${id}`).value,
-            estado_adopcion: document.getElementById(`adopcion-${id}`).value,
-            estado_entrenamiento: document.getElementById(`entrenamiento-${id}`).value,
-            estado_salud: document.getElementById(`salud-${id}`).value
-        }).eq("id", id);
+    inputs.forEach(input => {
+        const id = input.dataset.id;
+        const campo = input.dataset.campo;
+
+        if (!cambios[id]) cambios[id] = {};
+        cambios[id][campo] = input.value;
+    });
+
+    for (const id in cambios) {
+        const { error } = await supabase
+            .from("perros")
+            .update(cambios[id])
+            .eq("id", id);
+
+        if (error) {
+            console.error(error);
+            alert("Error al actualizar ID " + id);
+        }
     }
 
-    alert("Cambios guardados");
+    alert("✅ Cambios guardados");
     cargarPerros();
 }
 
-async function insertarPerro() {
-    const { error } = await db.from("perros").insert([{
-        nombre: "Nuevo",
-        sexo: "M",
-        edad: 1,
-        raza: "Desconocida",
-        fecha_rescate: new Date().toISOString().split("T")[0],
-        estado_adopcion: "No disponible",
-        estado_entrenamiento: "Sin adiestrar",
-        estado_salud: "En revision"
-    }]);
+async function registrarPerro() {
+    try {
+        const nuevo = {
+            nombre: document.getElementById("new-nombre").value,
+            sexo: document.getElementById("new-sexo").value,
+            edad: document.getElementById("new-edad").value,
+            raza: document.getElementById("new-raza").value,
+            fecha_rescate: document.getElementById("new-fecha").value,
+            estado_adopcion: document.getElementById("new-adopcion").value,
+            estado_entrenamiento: document.getElementById("new-entrenamiento").value,
+            estado_salud: document.getElementById("new-salud").value
+        };
 
-    if (error) {
-        alert("Error al insertar");
-    } else {
+        const { error } = await supabase
+            .from("perros")
+            .insert([nuevo]);
+
+        if (error) {
+            alert("Error al registrar: " + error.message);
+            return;
+        }
+
+        alert("✅ Perro registrado");
         cargarPerros();
+
+    } catch (err) {
+        console.error(err);
+        alert("Error");
     }
 }
 
