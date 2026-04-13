@@ -273,7 +273,7 @@ async function guardarCambios() {
     });
 
     for (const id in cambios) {
-        const { error } = await supabase
+        const { error } = await db
             .from("perros")
             .update(cambios[id])
             .eq("id", id);
@@ -301,7 +301,7 @@ async function registrarPerro() {
             estado_salud: document.getElementById("new-salud").value
         };
 
-        const { error } = await supabase
+        const { error } = await db
             .from("perros")
             .insert([nuevo]);
 
