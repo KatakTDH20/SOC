@@ -7,27 +7,47 @@
 <link rel="stylesheet" href="style.css">
 
 <style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* CONTENIDO */
 .container {
+    flex: 1;
     padding: 40px;
+    text-align: center;
 }
 
 .card {
     background: white;
     padding: 25px;
     border-radius: 10px;
-    max-width: 500px;
+    max-width: 400px;
     margin: auto;
-    text-align: center;
 }
 
+.card p {
+    margin: 10px 0;
+}
+
+/* BOTONES */
 button {
     padding: 10px;
     margin-top: 10px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
+    width: 100%;
 }
 
 .aprobar { background: green; color: white; }
 .rechazar { background: red; color: white; }
+.logout { background: red; color: white; }
 </style>
 </head>
 
@@ -50,12 +70,12 @@ button {
 
         <!-- dinámico -->
         <a href="sesion.html" id="login-link">Iniciar</a>
-        <a href="perfil.html" id="user-link" style="display:none;">Mi Perfil</a>
         <a href="admin.html" id="admin-profile-link" style="display:none;">Admin</a>
         <a href="lista.html" id="admin-list-link" style="display:none;">Usuarios</a>
     </nav>
 </header>
 
+<!-- CONTENIDO -->
 <div class="container">
     <div class="card">
         <h2>Perfil</h2>
@@ -69,27 +89,33 @@ button {
         <h3>Solicitud de adopción</h3>
         <p id="adopcion-info">Sin solicitud</p>
 
+        <!-- BOTONES ADMIN -->
         <div id="admin-botones" style="display:none;">
             <button class="aprobar" onclick="aprobar()">Aprobar</button>
             <button class="rechazar" onclick="rechazar()">Rechazar</button>
         </div>
 
-        <button id="logout-btn" onclick="cerrarSesion()">Cerrar sesión</button>
+        <!-- BOTÓN LOGOUT SOLO USUARIO -->
+        <button id="logout-btn" class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
 </div>
 
 <!-- FOOTER -->
 <footer class="footer">
     <div class="footer-content">
-        <div class="footer-info">
+        <div>
             <p>📍 Sahuayo, Michoacán</p>
             <p>📞 353 000 0000</p>
             <p>✉ contacto@segundaoportunidadcanina.mx</p>
         </div>
 
         <div class="social-icons">
-            <img src="img/instagram.png">
-            <img src="img/tiktok.png">
+            <a href="https://www.instagram.com/segundaoportunidadcanina/">
+                <img src="img/instagram.png">
+            </a>
+            <a href="https://www.tiktok.com/@soc.sahuayo">
+                <img src="img/tiktok.png">
+            </a>
         </div>
     </div>
 </footer>
@@ -102,7 +128,7 @@ button {
 document.addEventListener("DOMContentLoaded", () => {
     cargarPerfil();
 
-    // ocultar botón cerrar sesión si es admin
+    // ocultar cerrar sesión si es admin
     if (localStorage.getItem("rol") === "admin") {
         document.getElementById("logout-btn").style.display = "none";
     }

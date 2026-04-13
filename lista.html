@@ -3,35 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <title>Usuarios - SOC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
+
 <style>
-body { font-family: Arial; margin:0; }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 
 .header {
-    background:#72e48b;
-    padding:15px;
-    color:white;
+    background: #72e48b;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+}
+
+.logo-container img {
+    width: 50px;
+}
+
+.nav a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.container {
+    flex: 1;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+h2 {
+    text-align: center;
+    color: #163a59;
+}
+
+.tabla-container {
+    margin-top: 20px;
+    overflow-x: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 table {
-    width:100%;
     border-collapse: collapse;
+    width: 100%;
+    min-width: 800px;
 }
 
 th, td {
-    border:1px solid #ccc;
-    padding:10px;
-    text-align:center;
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #163a59;
+    color: white;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+tr:hover {
+    background: #f0f0f0;
 }
 
 button {
-    padding:5px 10px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.ver {
+    background: #72e48b;
+    color: white;
+}
+
+.ver:hover {
+    background: #5ccf76;
+}
+
+.footer {
+    background: #163a59;
+    color: white;
+    padding: 20px;
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.social-icons img {
+    width: 30px;
+    margin-left: 10px;
+    filter: brightness(0) invert(1);
 }
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header class="header">
     <div class="logo-container">
         <a href="index.html">
@@ -49,20 +149,31 @@ button {
     </nav>
 </header>
 
-<h2 style="text-align:center;">Usuarios registrados</h2>
+<!-- CONTENIDO -->
+<div class="container">
+    <h2>👤 Usuarios registrados</h2>
 
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody id="tabla-usuarios"></tbody>
-</table>
+    <div class="tabla-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
 
+            <tbody id="tabla-usuarios">
+                <tr>
+                    <td colspan="4">Cargando usuarios...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- FOOTER -->
 <footer class="footer">
     <div class="footer-content">
         <div>
@@ -72,12 +183,15 @@ button {
         </div>
 
         <div class="social-icons">
-            <a href="https://www.instagram.com/segundaoportunidadcanina/"><img src="img/instagram.png"></a>
-            <a href="https://www.tiktok.com/@soc.sahuayo"><img src="img/tiktok.png"></a>
+            <a href="https://www.instagram.com/segundaoportunidadcanina/">
+                <img src="img/instagram.png">
+            </a>
+            <a href="https://www.tiktok.com/@soc.sahuayo">
+                <img src="img/tiktok.png">
+            </a>
         </div>
     </div>
 </footer>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
