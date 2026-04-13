@@ -41,28 +41,45 @@ if (form) {
 // Actualizar menú según rol
 function actualizarMenu() {
     const rol = localStorage.getItem("rol");
+
     const login = document.getElementById("login-link");
     const user = document.getElementById("user-link");
-    const admin = document.getElementById("admin-link");
+    const adminProfile = document.getElementById("admin-profile-link");
+    const adminList = document.getElementById("admin-list-link");
 
-    if (!login || !user || !admin) return;
+    if (!login || !user || !adminProfile || !adminList) return;
 
     if (rol === "usuario") {
         login.style.display = "none";
         user.style.display = "inline";
-        admin.style.display = "none";
-    } else if (rol === "admin") {
+        adminProfile.style.display = "none";
+        adminList.style.display = "none";
+    } 
+    else if (rol === "admin") {
         login.style.display = "none";
-        user.style.display = "inline";
-        admin.style.display = "inline";
-    } else {
+        user.style.display = "none";
+        adminProfile.style.display = "inline";
+        adminList.style.display = "inline";
+    } 
+    else {
         login.style.display = "inline";
         user.style.display = "none";
-        admin.style.display = "none";
+        adminProfile.style.display = "none";
+        adminList.style.display = "none";
     }
 }
 
 actualizarMenu();
+
+function cerrarSesion() {
+    // Limpiar datos de sesión
+    localStorage.removeItem("rol");
+    localStorage.removeItem("usuario_id");
+    localStorage.removeItem("usuario_nombre");
+
+    // Redirigir a login
+    window.location.href = "sesion.html";
+}
 
 // Función de diagnóstico
 async function diagnosticarConexion() {
