@@ -602,6 +602,11 @@ async function cargarAdopcionUsuario(idUsuario) {
 async function aprobar() {
     const id = localStorage.getItem("adopcion_id");
 
+    if (!id) {
+        alert("No hay solicitud seleccionada");
+        return;
+    }
+
     const { error } = await db
         .from("adopciones")
         .update({
@@ -611,7 +616,8 @@ async function aprobar() {
         .eq("id", id);
 
     if (error) {
-        alert("Error al aprobar");
+        console.error("Error real:", error);
+        alert("Error al aprobar: " + error.message);
     } else {
         alert("✅ Adopción aprobada");
         location.reload();
@@ -620,6 +626,11 @@ async function aprobar() {
 
 async function rechazar() {
     const id = localStorage.getItem("adopcion_id");
+
+    if (!id) {
+        alert("No hay solicitud seleccionada");
+        return;
+    }
 
     const { error } = await db
         .from("adopciones")
@@ -630,7 +641,8 @@ async function rechazar() {
         .eq("id", id);
 
     if (error) {
-        alert("Error al rechazar");
+        console.error("Error real:", error);
+        alert("Error al rechazar: " + error.message);
     } else {
         alert("❌ Adopción rechazada");
         location.reload();
