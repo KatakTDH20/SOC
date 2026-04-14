@@ -69,7 +69,6 @@ button {
         <a href="perros.html">Perros</a>
 
         <!-- dinámico -->
-        <a href="sesion.html" id="login-link">Iniciar</a>
         <a href="admin.html" id="admin-profile-link" style="display:none;">Admin</a>
         <a href="lista.html" id="admin-list-link" style="display:none;">Usuarios</a>
     </nav>
@@ -127,6 +126,7 @@ button {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     cargarPerfil();
+    cargarAdopcionUsuario();
 
     // ocultar cerrar sesión si es admin
     if (localStorage.getItem("rol") === "admin") {

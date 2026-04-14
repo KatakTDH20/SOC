@@ -232,9 +232,9 @@ async function cargarPerros() {
                     <td>${perro.estado_adopcion}</td>
                     <td>${perro.estado_entrenamiento}</td>
                     <td>${perro.estado_salud}</td>
-                    <td>
+                    <td id="accion-${perro.id}">
                         ${perro.estado_adopcion === "Disponible"
-                            ? `<button class="adoptar">Adoptar</button>`
+                            ? `<button class="adoptar" onclick="adoptar(${perro.id})" id="accion-${perro.id}">Adoptar</button>`
                             : ""}
                     </td>
                 </tr>
@@ -259,6 +259,8 @@ async function cargarPerros() {
             }
 
         });
+
+        actualizarBotonesAdopcion();
 
     } catch (err) {
         console.error(err);
@@ -333,6 +335,69 @@ async function registrarPerro() {
         console.error(err);
         alert("Error");
     }
+}
+
+async function adoptar(idPerro) {
+    const idUsuario = localStorage.getItem("usuario_id");
+
+    if (!idUsuario) {
+        alert("Debes iniciar sesión");
+        return;
+    }
+
+    const nuevaSolicitud = {
+        id_perro: idPerro,
+        id_usuario: idUsuario,
+        fecha_solicitud: new Date().toISOString(),
+        estado: "En revisión",
+        fecha_adopcion: null
+    };
+
+    const { error } = await db
+        .from("adopciones")
+        .insert([nuevaSolicitud]);
+
+    if (error) {
+        alert("Error al solicitar adopción");
+        console.error(error);
+    } else {
+        alert("🐕 Solicitud enviada");
+    }
+}
+
+async function actualizarBotonesAdopcion() {
+    const idUsuario = localStorage.getItem("usuario_id");
+    if (!idUsuario) return;
+
+    const { data, error } = await db
+        .from("adopciones")
+        .select("*")
+        .eq("id_usuario", idUsuario);
+
+    if (error) return;
+
+    data.forEach(adopcion => {
+        const btn = document.getElementById(`btn-${adopcion.id_perro}`);
+        const contenedor = document.getElementById(`accion-${adopcion.id_perro}`);
+
+        if (!btn || !contenedor) return;
+
+        if (adopcion.estado === "En revisión") {
+            btn.disabled = true;
+            btn.style.background = "#ccc";
+            btn.innerText = "En revisión";
+        }
+
+        if (adopcion.estado === "Aprobado") {
+            contenedor.innerHTML = `<span style="color:green; font-weight:bold;">Adoptado</span>`;
+        }
+
+        if (adopcion.estado === "Rechazado") {
+            btn.disabled = false;
+            btn.style.background = "#72e48b";
+            btn.innerText = "Adoptar";
+        }
+    });
 }
 
 async function cargarAdmin() {
@@ -494,28 +559,65 @@ async function cargarPerfil() {
     }
 }
 
-async function aprobar() {
-    const id = localStorage.getItem("usuario_id");
+async function cargarAdopcionUsuario() {
+    const idUsuario = localStorage.getItem("usuario_id");
 
-    await db
+    const { data, error } = await db
         .from("adopciones")
-        .update({ estado: "Aceptada" })
-        .eq("id_usuarios", id);
+        .select(`
+            id,
+            estado,
+            fecha_adopcion,
+            perros(nombre)
+        `)
+        .eq("id_usuario", idUsuario)
+        .single();
 
-    alert("Aprobada");
-    location.reload();
+    if (data) {
+        document.getElementById("adopcion-info").innerText =
+            `Perro: ${data.perros.nombre} | Estado: ${data.estado}`;
+
+        // guardar ID para admin
+        localStorage.setItem("adopcion_id", data.id);
+    }
+}
+
+async function aprobar() {
+    const id = localStorage.getItem("adopcion_id");
+
+    const { error } = await db
+        .from("adopciones")
+        .update({
+            estado: "Aprobado",
+            fecha_adopcion: new Date().toISOString()
+        })
+        .eq("id", id);
+
+    if (error) {
+        alert("Error al aprobar");
+    } else {
+        alert("✅ Adopción aprobada");
+        location.reload();
+    }
 }
 
 async function rechazar() {
-    const id = localStorage.getItem("usuario_id");
+    const id = localStorage.getItem("adopcion_id");
 
-    await db
+    const { error } = await db
         .from("adopciones")
-        .delete()
-        .eq("id_usuarios", id);
+        .update({
+            estado: "Rechazado",
+            fecha_adopcion: null
+        })
+        .eq("id", id);
 
-    alert("Rechazada");
-    location.reload();
+    if (error) {
+        alert("Error al rechazar");
+    } else {
+        alert("❌ Adopción rechazada");
+        location.reload();
+    }
 }
 
 async function cargarUsuarios() {
