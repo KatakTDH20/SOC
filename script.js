@@ -354,7 +354,7 @@ async function adoptar(idPerro) {
         id_perro: idPerro,
         id_usuario: idUsuario,
         fecha_solicitud: new Date().toISOString(),
-        estado: "En revisión",
+        estado: "En revision",
         fecha_adopcion: null
     };
 
@@ -533,35 +533,41 @@ async function cargarPerfil() {
 
     let id;
 
-    if (rol === "admin") {
-        // admin ve otro usuario
+    // 🔥 ADMIN viendo usuario
+    if (rol === "admin" && localStorage.getItem("usuario_ver")) {
         id = localStorage.getItem("usuario_ver");
     } else {
-        // usuario ve su propio perfil
         id = localStorage.getItem("usuario_id");
     }
 
     if (!id) return;
 
-    let tabla = rol === "admin" ? "usuarios" : "usuarios";
-
-    const { data } = await db
-        .from(tabla)
+    const { data, error } = await db
+        .from("usuarios")
         .select("*")
         .eq("id", id)
         .single();
+
+    if (error) {
+        console.error(error);
+        return;
+    }
 
     document.getElementById("nombre").textContent = data.nombre;
     document.getElementById("correo").textContent = data.correo;
     document.getElementById("telefono").textContent = data.telefono;
 
-    cargarAdopcionUsuario(id); // 🔥 importante
+    // ✅ NUEVO (dirección)
+    const direccion = document.getElementById("direccion");
+    if (direccion) direccion.textContent = data.direccion;
+
+    cargarAdopcionUsuario(id);
 }
 
 async function cargarAdopcionUsuario(idUsuario) {
     const rol = localStorage.getItem("rol");
 
-    const { data } = await db
+    const { data, error } = await db
         .from("adopciones")
         .select(`
             id,
@@ -585,6 +591,7 @@ async function cargarAdopcionUsuario(idUsuario) {
 
     localStorage.setItem("adopcion_id", data.id);
 
+    // 🔥 SOLO admin ve botones
     if (rol === "admin") {
         botones.style.display = "block";
     } else {
@@ -653,9 +660,5 @@ async function cargarUsuarios() {
     });
 }
 
-function verUsuario(id) {
-    localStorage.setItem("usuario_id", id);
-    window.location.href = "perfil.html";
-}
 // Ejecutar diagnóstico al cargar
 setTimeout(diagnosticarConexion, 1000);
