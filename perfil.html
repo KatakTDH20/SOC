@@ -95,7 +95,19 @@ button {
         <hr>
 
         <h3>Solicitud de adopción</h3>
-        <p id="adopcion-info">Sin solicitud</p>
+        <table id="tabla-adopciones" style="width:100%; margin-top:15px;">
+        <thead>
+            <tr>
+                <th>Perro</th>
+                <th>Estado</th>
+                <th>Fecha solicitud</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="body-adopciones">
+            <tr><td colspan="4">Cargando...</td></tr>
+        </tbody>
+        </table>
 
         <!-- BOTONES ADMIN -->
         <div id="admin-botones" style="display:none;">

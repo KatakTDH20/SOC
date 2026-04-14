@@ -564,48 +564,51 @@ async function cargarPerfil() {
     cargarAdopcionUsuario(id);
 }
 
-async function cargarAdopcionUsuario(idUsuario) {
+async function cargarAdopcionUsuario() {
     const rol = localStorage.getItem("rol");
+    const idUsuarioLog = localStorage.getItem("usuario_id");
+    const idVer = localStorage.getItem("usuario_ver");
+
+    const idFinal = (rol === "admin" && idVer) ? idVer : idUsuarioLog;
 
     const { data, error } = await db
         .from("adopciones")
         .select(`
             id,
             estado,
+            fecha_solicitud,
             fecha_adopcion,
             perros(nombre)
         `)
-        .eq("id_usuario", idUsuario)
-        .maybeSingle();
+        .eq("id_usuario", idFinal);
 
-    const info = document.getElementById("adopcion-info");
-    const botones = document.getElementById("admin-botones");
+    const tbody = document.getElementById("body-adopciones");
 
-    if (!data) {
-        info.innerText = "Sin solicitud";
-        botones.style.display = "none";
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4">Sin solicitudes</td></tr>`;
         return;
     }
 
-    info.innerText = `Perro: ${data.perros.nombre} | Estado: ${data.estado}`;
+    tbody.innerHTML = "";
 
-    localStorage.setItem("adopcion_id", data.id);
-
-    // 🔥 SOLO admin ve botones
-    if (rol === "admin") {
-        botones.style.display = "block";
-    } else {
-        botones.style.display = "none";
-    }
+    data.forEach(adopcion => {
+        tbody.innerHTML += `
+        <tr>
+            <td>${adopcion.perros.nombre}</td>
+            <td>${adopcion.estado}</td>
+            <td>${new Date(adopcion.fecha_solicitud).toLocaleDateString()}</td>
+            <td>
+                ${rol === "admin" && adopcion.estado === "En revision" ? `
+                    <button onclick="aprobar(${adopcion.id})">Aprobar</button>
+                    <button onclick="rechazar(${adopcion.id})">Rechazar</button>
+                ` : "-"}
+            </td>
+        </tr>
+        `;
+    });
 }
 
-async function aprobar() {
-    const id = localStorage.getItem("adopcion_id");
-
-    if (!id) {
-        alert("No hay solicitud seleccionada");
-        return;
-    }
+async function aprobar(id) {
 
     const { error } = await db
         .from("adopciones")
@@ -616,21 +619,15 @@ async function aprobar() {
         .eq("id", id);
 
     if (error) {
-        console.error("Error real:", error);
+        console.error(error);
         alert("Error al aprobar: " + error.message);
     } else {
         alert("✅ Adopción aprobada");
-        location.reload();
+        cargarAdopcionUsuario();
     }
 }
 
-async function rechazar() {
-    const id = localStorage.getItem("adopcion_id");
-
-    if (!id) {
-        alert("No hay solicitud seleccionada");
-        return;
-    }
+async function rechazar(id) {
 
     const { error } = await db
         .from("adopciones")
@@ -641,11 +638,11 @@ async function rechazar() {
         .eq("id", id);
 
     if (error) {
-        console.error("Error real:", error);
+        console.error(error);
         alert("Error al rechazar: " + error.message);
     } else {
         alert("❌ Adopción rechazada");
-        location.reload();
+        cargarAdopcionUsuario();
     }
 }
 
