@@ -137,6 +137,11 @@ function mostrarLogin() {
     }
 }
 
+function verUsuario(id) {
+    localStorage.setItem("usuario_ver", id);
+    window.location.href = "perfil.html";
+}
+
 // Función de diagnóstico
 async function diagnosticarConexion() {
     console.log("🔍 Diagnosticando conexión...");
@@ -232,9 +237,9 @@ async function cargarPerros() {
                     <td>${perro.estado_adopcion}</td>
                     <td>${perro.estado_entrenamiento}</td>
                     <td>${perro.estado_salud}</td>
-                    <td id="accion-${perro.id}">
+                    <td id="btn-${perro.id}">
                         ${perro.estado_adopcion === "Disponible"
-                            ? `<button class="adoptar" onclick="adoptar(${perro.id})" id="accion-${perro.id}">Adoptar</button>`
+                            ? `<button class="adoptar" onclick="adoptar(${perro.id})" id="btn-${perro.id}">Adoptar</button>`
                             : ""}
                     </td>
                 </tr>
@@ -369,30 +374,29 @@ async function actualizarBotonesAdopcion() {
     const idUsuario = localStorage.getItem("usuario_id");
     if (!idUsuario) return;
 
-    const { data, error } = await db
+    const { data } = await db
         .from("adopciones")
         .select("*")
         .eq("id_usuario", idUsuario);
-
-    if (error) return;
 
     data.forEach(adopcion => {
         const btn = document.getElementById(`btn-${adopcion.id_perro}`);
         const contenedor = document.getElementById(`accion-${adopcion.id_perro}`);
 
-        if (!btn || !contenedor) return;
+        if (!contenedor) return;
 
-        if (adopcion.estado === "En revisión") {
+        if (adopcion.estado === "En revisión" && btn) {
             btn.disabled = true;
             btn.style.background = "#ccc";
             btn.innerText = "En revisión";
         }
 
         if (adopcion.estado === "Aprobado") {
-            contenedor.innerHTML = `<span style="color:green; font-weight:bold;">Adoptado</span>`;
+            contenedor.innerHTML =
+                `<span style="color:green; font-weight:bold;">Adoptado</span>`;
         }
 
-        if (adopcion.estado === "Rechazado") {
+        if (adopcion.estado === "Rechazado" && btn) {
             btn.disabled = false;
             btn.style.background = "#72e48b";
             btn.innerText = "Adoptar";
@@ -524,12 +528,21 @@ async function login(event) {
 }
 
 async function cargarPerfil() {
-    const id = localStorage.getItem("usuario_id");
     const rol = localStorage.getItem("rol");
+
+    let id;
+
+    if (rol === "admin") {
+        // admin ve otro usuario
+        id = localStorage.getItem("usuario_ver");
+    } else {
+        // usuario ve su propio perfil
+        id = localStorage.getItem("usuario_id");
+    }
 
     if (!id) return;
 
-    let tabla = rol === "admin" ? "administradores" : "usuarios";
+    let tabla = rol === "admin" ? "usuarios" : "usuarios";
 
     const { data } = await db
         .from(tabla)
@@ -541,29 +554,13 @@ async function cargarPerfil() {
     document.getElementById("correo").textContent = data.correo;
     document.getElementById("telefono").textContent = data.telefono;
 
-    // 🔥 ADOPCIÓN
-    const { data: adopcion } = await db
-        .from("adopciones")
-        .select("*, perros(nombre)")
-        .eq("id_usuarios", id)
-        .eq("estado", "En revision")
-        .single();
-
-    if (adopcion) {
-        document.getElementById("adopcion-info").textContent =
-            "Perro: " + adopcion.perros.nombre;
-
-        if (rol === "admin") {
-            document.getElementById("admin-botones").style.display = "block";
-        }
-    }
+    cargarAdopcionUsuario(id); // 🔥 importante
 }
 
-async function cargarAdopcionUsuario() {
-    const idUsuario = localStorage.getItem("usuario_id");
+async function cargarAdopcionUsuario(idUsuario) {
     const rol = localStorage.getItem("rol");
 
-    const { data, error } = await db
+    const { data } = await db
         .from("adopciones")
         .select(`
             id,
@@ -579,17 +576,14 @@ async function cargarAdopcionUsuario() {
 
     if (!data) {
         info.innerText = "Sin solicitud";
-        botones.style.display = "none"; // 🔒 ocultar botones
+        botones.style.display = "none";
         return;
     }
 
-    // Mostrar info
     info.innerText = `Perro: ${data.perros.nombre} | Estado: ${data.estado}`;
 
-    // Guardar ID
     localStorage.setItem("adopcion_id", data.id);
 
-    // Mostrar botones SOLO si es admin
     if (rol === "admin") {
         botones.style.display = "block";
     } else {
