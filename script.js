@@ -610,7 +610,7 @@ async function aprobar() {
     const { error } = await db
         .from("adopciones")
         .update({
-            estado: "Aprobado",
+            estado: "Aprobada",
             fecha_adopcion: new Date().toISOString()
         })
         .eq("id", id);
@@ -635,7 +635,7 @@ async function rechazar() {
     const { error } = await db
         .from("adopciones")
         .update({
-            estado: "Rechazado",
+            estado: "Rechazada",
             fecha_adopcion: null
         })
         .eq("id", id);
