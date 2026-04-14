@@ -561,6 +561,7 @@ async function cargarPerfil() {
 
 async function cargarAdopcionUsuario() {
     const idUsuario = localStorage.getItem("usuario_id");
+    const rol = localStorage.getItem("rol");
 
     const { data, error } = await db
         .from("adopciones")
@@ -571,14 +572,28 @@ async function cargarAdopcionUsuario() {
             perros(nombre)
         `)
         .eq("id_usuario", idUsuario)
-        .single();
+        .maybeSingle();
 
-    if (data) {
-        document.getElementById("adopcion-info").innerText =
-            `Perro: ${data.perros.nombre} | Estado: ${data.estado}`;
+    const info = document.getElementById("adopcion-info");
+    const botones = document.getElementById("admin-botones");
 
-        // guardar ID para admin
-        localStorage.setItem("adopcion_id", data.id);
+    if (!data) {
+        info.innerText = "Sin solicitud";
+        botones.style.display = "none"; // 🔒 ocultar botones
+        return;
+    }
+
+    // Mostrar info
+    info.innerText = `Perro: ${data.perros.nombre} | Estado: ${data.estado}`;
+
+    // Guardar ID
+    localStorage.setItem("adopcion_id", data.id);
+
+    // Mostrar botones SOLO si es admin
+    if (rol === "admin") {
+        botones.style.display = "block";
+    } else {
+        botones.style.display = "none";
     }
 }
 
