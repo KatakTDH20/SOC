@@ -363,10 +363,11 @@ async function adoptar(idPerro) {
         .insert([nuevaSolicitud]);
 
     if (error) {
-        alert("Error al solicitar adopción");
-        console.error(error);
+        console.error(error); // 🔥 IMPORTANTE
+        alert("Error real: " + error.message);
     } else {
         alert("🐕 Solicitud enviada");
+        cargarPerros();
     }
 }
 
